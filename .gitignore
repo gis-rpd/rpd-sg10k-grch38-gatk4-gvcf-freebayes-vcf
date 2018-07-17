@@ -1,0 +1,10 @@
+*~
+conf/awsprofile.config
+trace.txt*
+.nextflow.log*
+dag.png*
+report.html*
+work/
+.nextflow/
+nohup.out
+dag.dot*

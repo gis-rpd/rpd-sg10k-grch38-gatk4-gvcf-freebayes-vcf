@@ -1,0 +1,69 @@
+samples:
+  ERR194147-fake1:
+    readunits:
+      part_001:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_001.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_001.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_002:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_002.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_002.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_003:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_003.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_003.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_004:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_004.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_004.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+  ERR194147-fake2:
+    readunits:
+      part_005:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_005.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_005.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_006:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_006.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_006.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_007:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_007.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_007.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
+      part_008:
+        flowcell_id: C0D8DACXX
+        fq1: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_1.fastq.gz.split/ERR194147_1.part_008.1M.fastq.gz
+        fq2: /seq/astar/gis/rpd/testing/data/giab/NA12878-HG001/ERR194147/ERR194147_2.fastq.gz.split/ERR194147_2.part_008.1M.fastq.gz
+        library_id: ERR194147
+        lane_id: '1'
+        rg_id: NG001-PE-R00052.6
+        run_id: NG001-PE-R00052
