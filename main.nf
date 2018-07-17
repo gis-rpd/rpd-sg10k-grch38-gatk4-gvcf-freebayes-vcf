@@ -60,6 +60,9 @@ if (params.samples == null)
     exit 1, "No samples given"
 log.info "List of samples: " +  params.samples.keySet()
 
+if (params.keep_workdir)
+   cleanup = false
+
 ref = file( params.references.genome )
 if ( ! ref.exists())
     exit 1, "Missing genome reference file: ${ref}"
