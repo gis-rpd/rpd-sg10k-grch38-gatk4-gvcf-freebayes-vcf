@@ -30,7 +30,10 @@ Most if not all parameters should go into a file called `params.yaml`
 and passed to Nextflow with `-params-file params.yaml`.  To create a
 this file, concatenate `references.yaml` with the usual (GIS)
 `samples.yaml`. The latter has to be of the new format, where
-`readunits` are listed under `samples`.  Examples can be found in the
+`readunits` are listed under `samples`. The GIS RPD snakemake framework has a
+[converter script](https://github.com/gis-rpd/pipelines/blob/devel/tools/sample_conf_converter.py).
+
+Examples can be found in the
 `tests` directory.
 
 ## Output

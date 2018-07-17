@@ -221,7 +221,9 @@ process gatk_recalibrate_bam {
         file(ref_dict)
     output:
         set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai") into \
-            bqsr_bam_ch1, bqsr_bam_ch2, bqsr_bam_ch3, bqsr_bam_ch4, bqsr_bam_ch5, bqsr_bam_ch6
+            bqsr_bam_ch1, bqsr_bam_ch2, bqsr_bam_ch3, bqsr_bam_ch4, bqsr_bam_ch5
+        file("${sample_key}.bqsr.bam") into bqsr_bam_only_ch
+        file("${sample_key}.bqsr.bam.bai") into  bqsr_bai_only_ch
     script:
         """
         # keeping original qualities, so that we can always go back
@@ -235,14 +237,15 @@ process gatk_recalibrate_bam {
 
 process indexcov {
     tag "Running indexcov for all samples"
-    publishDir "${params.publishdir}/indexcov", mode: 'copy'
+    publishDir "${params.publishdir}", mode: 'copy'
     input:
-        set sample_keys, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai") from bqsr_bam_ch6.collect()
+        file bams from bqsr_bam_only_ch.collect()
+        file bais from bqsr_bai_only_ch.collect()
     output:
         file("indexcov/all*") into indexcov_ch
     script:
         """
-        goleft indexcov -d indexcov/all {input.bams}
+        goleft indexcov -d indexcov/all ${bams}
         """
 }
 
@@ -367,7 +370,7 @@ workflow.onComplete {
     def msg = """\
     Pipeline execution summary
     ---------------------------
-    Status:      : ${ workflow.success ? 'OK' : 'FAILED' }
+    Status:      : ${ workflow.success ? 'COMPLETED' : 'FAILED' }
 
     Started at   : ${workflow.start}
     Completed at : ${workflow.complete}
@@ -378,11 +381,7 @@ workflow.onComplete {
     Project Dir  : ${workflow.projectDir}
     """.stripIndent()
 
-    if (workflow.success) {
-       if (! params.keep_workdir) {
-           file('work').deleteDir()
-       }
-    } else {
+    if (! workflow.success) {    
        def errmsg = """\
 
        Report for task that caused the workflow execution to fail:
@@ -394,7 +393,7 @@ workflow.onComplete {
        msg = msg + errmsg
     }
     
-    status = ${ workflow.success ? 'completed' : 'failed' }
+    status = workflow.success ? 'completed' : 'failed'
     sendMail(from: 'rpd@gis.a-star.edu.sg', to: "${params.mail_to}", 
              subject: 'Nextflow execution ${status}: ${workflow_name}', body: msg)
 }
