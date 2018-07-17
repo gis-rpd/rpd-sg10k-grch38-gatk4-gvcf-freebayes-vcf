@@ -1,1 +1,1 @@
-	 cat references.yaml NA12878-HG001-two-fakes.yaml > params.yaml
+	 cat ../references.yaml NA12878-HG001-two-fakes.yaml > params.yaml

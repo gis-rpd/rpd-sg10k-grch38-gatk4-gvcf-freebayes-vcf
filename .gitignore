@@ -8,3 +8,4 @@ work/
 .nextflow/
 nohup.out
 dag.dot*
+tests/run-*
