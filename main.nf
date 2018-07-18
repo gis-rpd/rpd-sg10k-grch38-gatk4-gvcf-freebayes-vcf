@@ -60,8 +60,10 @@ if (params.samples == null)
     exit 1, "No samples given"
 log.info "List of samples: " +  params.samples.keySet()
 
-if (params.keep_workdir)
+if (params.keep_workdir) {
+   log.warn "Not cleaning up work automatically"
    cleanup = false
+}
 
 ref = file( params.references.genome )
 if ( ! ref.exists())
@@ -398,7 +400,7 @@ workflow.onComplete {
     
     status = workflow.success ? 'completed' : 'failed'
     sendMail(from: 'rpd@gis.a-star.edu.sg', to: "${params.mail_to}", 
-             subject: 'Nextflow execution ${status}: ${workflow_name}', body: msg)
+             subject: "Nextflow execution ${status}: ${workflow_name}", body: msg)
 }
 
 workflow.onError {
