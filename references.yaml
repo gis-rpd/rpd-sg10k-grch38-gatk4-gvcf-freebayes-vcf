@@ -9,6 +9,7 @@ references:
   hapmap: /data/users/astar/gis/rpd/genomes.testing/GRCh38/gatk-bundle/hapmap_3.3.hg38.vcf.gz
   mills: /data/users/astar/gis/rpd/genomes.testing/GRCh38/gatk-bundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
   omni: /data/users/astar/gis/rpd/genomes.testing/GRCh38/gatk-bundle/1000G_omni2.5.hg38.vcf.gz
+  calling_interval_list: /data/users/astar/gis/rpd/genomes.testing/GRCh38/gatk-bundle/wgs_calling_regions.hg38.interval_list
   region_clusters:
   - - chr1:0-248956422
   - - chr2:0-242193529
