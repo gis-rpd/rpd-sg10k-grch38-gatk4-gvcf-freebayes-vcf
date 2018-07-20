@@ -15,5 +15,5 @@ echo "INFO: This copy makes messing around easier; just don't forget to incorpor
 echo "INFO: Running in newly created $tmpdir"
 cd $tmpdir
 
-nohup nextflow main.nf -c nextflow.config -params-file $(basename $PARAMS) -profile nscc --publishdir results -resume &
+nohup nextflow main.nf -c nextflow.config -params-file $(basename $PARAMS) -profile nscc --publishdir results --keep_workdir -resume &
 

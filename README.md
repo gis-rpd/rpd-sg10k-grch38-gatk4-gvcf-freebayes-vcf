@@ -2,6 +2,7 @@
 
 This workflow processes SG10K samples from FastQ to CRAM and
 creates a GATK4 gVCF as well as a filtered Freebayes VCF.
+GATK commandline parameters are based on https://github.com/broadinstitute/wdl/tree/develop/scripts/broad_pipelines/germline-short-variant-discovery/gvcf-generation-per-sample/1.0.0
 
 ## Software dependencies
 
