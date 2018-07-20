@@ -70,15 +70,19 @@ ref_bwt = file( params.references.genome + '.bwt' )
 ref_ann = file( params.references.genome + '.ann' )
 ref_amb = file( params.references.genome + '.amb' )
 ref_pac = file( params.references.genome + '.pac' )
-dbsnp = file( params.references.dbsnp)
+dbsnp = file( params.references.dbsnp )
 if ( ! dbsnp.exists())
-    exit 1, "Missing DBSnp reference file: ${ref}"
+    exit 1, "Missing DBSnp reference file: ${dbsnp}"
 dbsnp_index = file( params.references.dbsnp ) + '.tbi'
 
 mills = file( params.references.mills )
 if ( ! mills.exists())
-    exit 1, "Missing Mills reference file: ${ref}"
+    exit 1, "Missing Mills reference file: ${mills}"
 mills_index = file( params.references.mills ) + '.tbi'
+
+calling_interval_list = file( params.references.calling_interval_list )
+if ( ! calling_interval_list.exists())
+    exit 1, "Missing Mills reference file: ${calling_interval_list}"
 
 // FIXME we should really test all of them...
 
@@ -174,6 +178,7 @@ process mark_duplicates {
         """
         #java -Dsamjdk.compression_level=2 -Xms4000m -jar \${PICARD_JAR}
         picard -Dsamjdk.compression_level=2 -Xms4000m -Xmx${task.memory.toGiga()}G \
+            -XX:ConcGCThreads=${task.cpus} -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=${task.cpus} \
             MarkDuplicates \
             INPUT=${sample_key}.merged.bam \
             OUTPUT=${sample_key}.dedup.bam \
@@ -305,14 +310,15 @@ process freebayes {
         set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai") from bqsr_bam_ch5
         file(ref)
         file(ref_fai)
+        file(calling_interval_list)
     output:
         set sample_key, file("${sample_key}.fb.vcf.gz"), file("${sample_key}.fb.vcf.gz.tbi")
     when:
         ! params.gvcf_only
     script:
         """
-        goleft indexsplit -n 500 ${sample_key}.bqsr.bam | awk '{printf "%s:%s-%s\\n", \$1, \$2, \$3}' > split.bed;
-        freebayes-parallel split.bed ${task.cpus} -f ${ref} ${sample_key}.bqsr.bam | bgzip > ${sample_key}.fb-raw.vcf.gz
+        awk '/^[^@]/ {printf "%s:%d-%d\\n", \$1, \$2, \$3}' ${calling_interval_list} > calling.regions;
+        freebayes-parallel calling.regions ${task.cpus} -f ${ref} ${sample_key}.bqsr.bam | bgzip > ${sample_key}.fb-raw.vcf.gz;
         bcftools view -e 'Q<20' -O z -o ${sample_key}.fb.vcf.gz ${sample_key}.fb-raw.vcf.gz;
         tabix -p vcf ${sample_key}.fb.vcf.gz
         """
@@ -395,7 +401,7 @@ workflow.onComplete {
     
     status = workflow.success ? 'completed' : 'failed'
     sendMail(from: 'rpd@gis.a-star.edu.sg', to: "${params.mail_to}", 
-             subject: 'Nextflow execution ${status}: ${workflow_name}', body: msg)
+             subject: "Nextflow execution ${status}: ${workflow_name}", body: msg)
 }
 
 workflow.onError {
