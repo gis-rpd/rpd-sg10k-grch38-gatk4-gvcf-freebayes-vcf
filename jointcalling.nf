@@ -5,7 +5,6 @@ vim: syntax=groovy
  *
  */
 
-
 /* Generate a MD5 hash (mariogarcia's solution from
  * https://gist.github.com/ikarius/299062/85b6540c99878f50f082aaee236ef15fc78e527c)
  */
@@ -13,7 +12,6 @@ import java.security.MessageDigest
 def generateMD5_A(String s){
     MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
 }
-
 
 genome = file(params.references.genome)
 genome_index = file(params.references.genome + ".fai")
