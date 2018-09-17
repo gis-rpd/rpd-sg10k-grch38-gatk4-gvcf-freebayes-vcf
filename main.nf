@@ -323,9 +323,12 @@ process freebayes {
     script:
         """
         awk '/^[^@]/ {printf "%s:%d-%d\\n", \$1, \$2, \$3}' ${calling_interval_list} > calling.regions;
+        export TMPDIR=$PWD;
         freebayes-parallel calling.regions ${task.cpus} -f ${ref} ${sample_key}.bqsr.bam | bgzip > ${sample_key}.fb-raw.vcf.gz;
         bcftools view -e 'Q<20' -O z -o ${sample_key}.fb.vcf.gz ${sample_key}.fb-raw.vcf.gz;
         tabix -p vcf ${sample_key}.fb.vcf.gz
+        nchrom=\$(tabix -l ${sample_key}.fb.vcf.gz | wc -l);
+        if [ \$nchrom -lt 22 ]; then echo "ERROR: fewer than expected chroms" 1>&2; exit 1; fi
         """
 }
 
