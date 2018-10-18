@@ -156,8 +156,14 @@ process gtvcf_merge {
 
     script:
     """
-    bcftools concat -a -o ${sample_key}.raw.vcf.gz -O z --threads ${task.cpus} reg*.vcf.gz;
-    bcftools index -t ${sample_key}.raw.vcf.gz
+    bcftools concat -a -o ${sample_key}.tmp.raw.vcf.gz -O z --threads ${task.cpus} reg*.vcf.gz;
+    bcftools index -t ${sample_key}.tmp.raw.vcf.gz;
+    picard -Dsamjdk.compression_level=2 -Xms4000m -Xmx${task.memory.toGiga()}G \
+        -XX:ConcGCThreads=${task.cpus} -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=${task.cpus} \
+        SortVcf \
+        TMP_DIR=\$(dirname ${sample_key})/tmp \
+        I=${sample_key}.tmp.raw.vcf.gz \
+        O=${sample_key}.raw.vcf.gz;
     """
 }
 
@@ -169,7 +175,8 @@ process HardFilterAndMakeSitesOnlyVcf {
     input:
         set sample_key, file("${sample_key}.raw.vcf.gz"), file("${sample_key}.raw.vcf.gz.tbi") from gtvcf_merge_ch1
     output:
-        set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") into sites_only_vcf_ch1, sites_only_vcf_ch2, sites_only_vcf_ch3
+        //set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") into sites_only_vcf_ch1, sites_only_vcf_ch2, sites_only_vcf_ch3
+        set sample_key, file("${sample_key}.variant_filtered.vcf.gz"), file("${sample_key}.variant_filtered.vcf.gz.tbi"), file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") into sites_only_vcf_ch1, sites_only_vcf_ch2, sites_only_vcf_ch3
     script:
     """
     gatk VariantFiltration \
@@ -194,7 +201,8 @@ process HardFilterAndMakeSitesOnlyVcf {
 process VariantRecalibrator_SNPs {
     tag "sample $sample_key"
     input:
-        set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch1
+        //set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch1
+        set sample_key, file("${sample_key}.variant_filtered.vcf.gz"), file("${sample_key}.variant_filtered.vcf.gz.tbi"), file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch1
         file(genome)
         file(genome_index)
         file(genome_dict)
@@ -240,7 +248,8 @@ process VariantRecalibrator_SNPs {
 process VariantRecalibrator_INDELs {
     tag "sample $sample_key"
     input:
-        set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch2
+        //set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch2
+        set sample_key, file("${sample_key}.variant_filtered.vcf.gz"), file("${sample_key}.variant_filtered.vcf.gz.tbi"), file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi") from sites_only_vcf_ch2
         file(genome)
         file(genome_index)
         file(genome_dict)
@@ -277,7 +286,15 @@ process ApplyVQSR {
     tag "sample $sample_key"
     publishDir "${params.publishdir}/${sample_key}", mode: 'copy'
     input:
-        set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi"), file("${sample_key}.recalibrate_INDEL.recal"),  file("${sample_key}.recalibrate_INDEL.recal.idx"), file("${sample_key}.recalibrate_INDEL.tranches"), file("${sample_key}.recalibrate_SNP.recal"), file("${sample_key}.recalibrate_SNP.recal.idx"), file("${sample_key}.recalibrate_SNP.tranches") from sites_only_vcf_ch3.join(variantrecalibrator_INDEL_ch).join(variantrecalibrator_SNP_ch)
+        //set sample_key, file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi"), file("${sample_key}.recalibrate_INDEL.recal"),  file("${sample_key}.recalibrate_INDEL.recal.idx"), file("${sample_key}.recalibrate_INDEL.tranches"), file("${sample_key}.recalibrate_SNP.recal"), file("${sample_key}.recalibrate_SNP.recal.idx"), file("${sample_key}.recalibrate_SNP.tranches") from sites_only_vcf_ch3.join(variantrecalibrator_INDEL_ch).join(variantrecalibrator_SNP_ch)
+       // SHOULD-LIKEY-BE // set sample_key, file("${sample_key}.variant_filtered.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi"), file("${sample_key}.recalibrate_INDEL.recal"),  file("${sample_key}.recalibrate_INDEL.recal.idx"), file("${sample_key}.recalibrate_INDEL.tranches"), file("${sample_key}.recalibrate_SNP.recal"), file("${sample_key}.recalibrate_SNP.recal.idx"), file("${sample_key}.recalibrate_SNP.tranches") from sites_only_vcf_ch3.join(variantrecalibrator_INDEL_ch).join(variantrecalibrator_SNP_ch)
+       set sample_key, file("${sample_key}.variant_filtered.vcf.gz"), file("${sample_key}.variant_filtered.vcf.gz.tbi"), \
+            file("${sample_key}.sites_only_vcf_filename.vcf.gz"), file("${sample_key}.sites_only_vcf_filename.vcf.gz.tbi"), \
+            file("${sample_key}.recalibrate_INDEL.recal"),  file("${sample_key}.recalibrate_INDEL.recal.idx"), \
+            file("${sample_key}.recalibrate_INDEL.tranches"), file("${sample_key}.recalibrate_SNP.recal"), \
+            file("${sample_key}.recalibrate_SNP.recal.idx"), file("${sample_key}.recalibrate_SNP.tranches") \
+            from sites_only_vcf_ch3.join(variantrecalibrator_INDEL_ch).join(variantrecalibrator_SNP_ch)
+
         //set sample_key, file("${sample_key}.recalibrate_INDEL.recal"), file("${sample_key}.recalibrate_INDEL.recal.idx"), file("${sample_key}.recalibrate_INDEL.tranches") from variantrecalibrator_INDEL_ch
         //set sample_key, file("${sample_key}.recalibrate_SNP.recal"), file("${sample_key}.recalibrate_SNP.recal.idx"), file("${sample_key}.recalibrate_SNP.tranches") from variantrecalibrator_SNP_ch
     output:
@@ -286,7 +303,7 @@ process ApplyVQSR {
     """
     gatk ApplyVQSR \
       -O ${sample_key}.tmp.indel.recalibrated.vcf.gz \
-      -V ${sample_key}.sites_only_vcf_filename.vcf.gz \
+      -V ${sample_key}.variant_filtered.vcf.gz \
       --recal-file ${sample_key}.recalibrate_INDEL.recal \
       --tranches-file ${sample_key}.recalibrate_INDEL.tranches \
       --truth-sensitivity-filter-level 99.7 \
