@@ -87,7 +87,7 @@ mills_index = file( params.references.mills ) + '.tbi'
 
 calling_interval_list = file( params.references.calling_interval_list )
 if ( ! calling_interval_list.exists())
-    exit 1, "Missing Mills reference file: ${calling_interval_list}"
+    exit 1, "Missing calling intervals file: ${calling_interval_list}"
 
 // FIXME we should really test all of them...
 
@@ -122,6 +122,16 @@ cont_vcfs = Channel
 }
 //cont_vcfs.subscribe { log.info "value: $it[0]" }
 
+
+idx = 1
+region_list_ch = Channel
+     .fromPath(calling_interval_list)
+     .splitText().filter{ ! it.startsWith("@") }
+     .collate( 100 )
+     .map{ reg_list -> tuple("r" + idx++, reg_list.join("") )}//.join()) }
+//     .subscribe { println it }
+// NOTE: region_list is proper bed content and can be dumped as is into a bed file
+// 'r' is used as delimited for later sorting so don't change the naming carelessly
 
 /* And...go!
  * ----------------------------------------------------------------------
@@ -304,6 +314,9 @@ process bam2cram {
     script:
         """
         samtools view -@ ${task.cpus} -C ${sample_key}.bqsr.bam -o ${sample_key}.bqsr.cram -O CRAM -T ${ref};
+        # reheader to fix reference to fasta in workdir
+        samtools view -H ${sample_key}.bqsr.cram| sed -e "s,UR:[^[:space:]]*,UR:${params.references.genome}," > ${sample_key}.bqsr.header
+        samtools reheader -i ${sample_key}.bqsr.header ${sample_key}.bqsr.cram;
         samtools index ${sample_key}.bqsr.cram
         """
 }
@@ -323,40 +336,42 @@ process freebayes {
     script:
         """
         awk '/^[^@]/ {printf "%s:%d-%d\\n", \$1, \$2, \$3}' ${calling_interval_list} > calling.regions;
-        export TMPDIR=$PWD;
+        export TMPDIR=\$PWD;
         freebayes-parallel calling.regions ${task.cpus} -f ${ref} ${sample_key}.bqsr.bam | bgzip > ${sample_key}.fb-raw.vcf.gz;
         bcftools view -e 'Q<20' -O z -o ${sample_key}.fb.vcf.gz ${sample_key}.fb-raw.vcf.gz;
-        tabix -p vcf ${sample_key}.fb.vcf.gz
-        nchrom=\$(tabix -l ${sample_key}.fb.vcf.gz | wc -l);
+        bcftools index --threads ${task.cpus} -t ${sample_key}.fb.vcf.gz
+
+        tabix ${sample_key}.fb-raw.vcf.gz
+        nchrom=\$(tabix -l ${sample_key}.fb-raw.vcf.gz | wc -l);
         if [ \$nchrom -lt 22 ]; then echo "ERROR: fewer than expected chroms" 1>&2; exit 1; fi
         """
 }
 
 process gatk_hc {
-    tag "Running HaplotypeCaller on region $region_no for sample $sample_key"
+    tag "Running HaplotypeCaller on region $region_name for sample $sample_key"
     //contamination is set to 0 and --max-alternate-alleles set to 6 as f=default (as per documentation)
     //Java option set as per https://github.com/gatk-workflows/gatk4-germline-snps-indels/blob/master/haplotypecaller-gvcf-gatk4.hg38.wgs.inputs.json
     input:
-        set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai") from bqsr_bam_ch3
-        each region_list from params['references']['region_clusters']
+        set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai"), region_name, region_list from bqsr_bam_ch3.combine(region_list_ch)
+        // using combine means that regions are arriving unsorted.i. we take care of this later..
+        //each region_tuple from region_list_ch
         file(ref)
         file(ref_fai)
         file(ref_dict)
         file(dbsnp)
         file(dbsnp_index)
     output:
-        set sample_key, region_no, file("reg-${region_no}.bed"), \
-        file("reg-${region_no}.g.vcf.gz"), file("reg-${region_no}.g.vcf.gz.tbi") into region_gvcf_ch1
+        set sample_key, file("${region_name}.g.vcf.gz"), file("${region_name}.g.vcf.gz.tbi") into region_gvcf_ch1
     script:
-        bed_str = region_list.join("\n").replace(":", "\t").replace("-", "\t")
-        region_no = generateMD5_A(region_list.toString())[0..8]
+	//region_name = region_tuple[0]
+        //region_list = region_tuple[1]
         """
-        echo "${bed_str}" > reg-${region_no}.bed;
+        echo "${region_list}" > ${region_name}.bed;
         gatk --java-options "-Xmx${task.memory.toGiga()}G -XX:ConcGCThreads=${task.cpus}  \
             -XX:+UseConcMarkSweepGC -XX:ParallelGCThreads=${task.cpus}" HaplotypeCaller \
             -contamination 0 --max-alternate-alleles 6 -R ${ref} --dbsnp ${dbsnp} \
-            -I ${sample_key}.bqsr.bam -L reg-${region_no}.bed --emit-ref-confidence GVCF \
-            -O reg-${region_no}.g.vcf.gz
+            -I ${sample_key}.bqsr.bam -L ${region_name}.bed --emit-ref-confidence GVCF \
+            -O ${region_name}.g.vcf.gz
         """
 }
 
@@ -364,15 +379,16 @@ process gvcf_merge {
     tag "Merging gVCFs for sample $sample_key"
     publishDir "${params.publishdir}/${sample_key}", mode: 'copy'
     input:
-        set sample_key, region_no, file(regbeds), \
-            file(reggvcfs), file(reggvcfs_index) from region_gvcf_ch1.groupTuple()
+        set sample_key, file(reggvcfs), file(reggvcfs_index) from region_gvcf_ch1.groupTuple()
     output:
         file("${sample_key}.g.vcf.gz")
         file("${sample_key}.g.vcf.gz.tbi")
     script:
        """
-       bcftools concat -o ${sample_key}.g.vcf.gz -O z --threads ${task.cpus} ${reggvcfs.join(' ')};
+       bcftools concat -o ${sample_key}.g.vcf.gz -O z --threads ${task.cpus} \$(ls ${reggvcfs.join(' ')} | sort -k 2 -t r -n);
        bcftools index --threads ${task.cpus} -t ${sample_key}.g.vcf.gz
+       nchrom=\$(tabix -l ${sample_key}.g.vcf.gz | wc -l);
+       if [ \$nchrom -lt 22 ]; then echo "ERROR: fewer than expected chroms" 1>&2; exit 1; fi
        """
 }
 
