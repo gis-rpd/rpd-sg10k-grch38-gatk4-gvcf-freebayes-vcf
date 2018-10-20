@@ -13,6 +13,32 @@ def generateMD5_A(String s){
     MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
 }
 
+workflow_name = "SG10K: GRCh38 joint-discovery-gatk4"
+log.info "======================================"
+log.info " ${workflow_name}"
+log.info "======================================"
+
+
+def helpMessage() {
+    log.info """
+    Usage: nextflow main.nf -params-file sample.yaml --publishdir outdir -profile nscc
+    Options:
+    -params-file    Sample config file
+    -profile        Config for jobs (use 'nscc' for NSCC Aspire 1)
+    --publishDir    Copies the process output files to a specified folder
+    --keep_workdir  Don't delete workdir
+    """.stripIndent()
+
+}
+if (params.help) {
+    helpMessage()
+    exit 0
+}
+
+if (params.keep_workdir) {
+   log.warn "Not cleaning up work automatically"
+   cleanup = false
+}
 genome = file(params.references.genome)
 genome_index = file(params.references.genome + ".fai")
 genome_dict = file(params.references.genome.toString().replace('fasta', 'dict'))
