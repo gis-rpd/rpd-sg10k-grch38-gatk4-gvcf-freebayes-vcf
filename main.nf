@@ -286,18 +286,17 @@ process sample_qc {
 }
 
 process verifybamid {
-    tag "Running contamination checks for sample $sample_key"
+    tag "Running contamination checks for sample $sample_key on $cont_key"
     publishDir "${params.publishdir}/${sample_key}/verifybamid/", mode: 'copy'
     input:
-        set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai") from bqsr_bam_ch2
-        each file(cont_vcfs)
+        set sample_key, file("${sample_key}.bqsr.bam"), file("${sample_key}.bqsr.bam.bai"), cont_key, file(cont_vcf) from bqsr_bam_ch2.combine(cont_vcfs)
+        //each file(cont_vcfs)
     output:
         set sample_key, file("*") into verifybamid_ch
     script:
-        cont_vcfs = cont_vcfs[1]
-        out_base = cont_vcfs.toString().replace(".sites.vcf.GRCh38.liftover.gz", " ")
+        out_base = cont_vcf.toString().replace(".sites.vcf.GRCh38.liftover.gz", " ")
     """
-    verifyBamID --vcf ${cont_vcfs} --bam ${sample_key}.bqsr.bam --out ${sample_key}.${out_base} \
+    verifyBamID --vcf ${cont_vcf} --bam ${sample_key}.bqsr.bam --out ${sample_key}.${out_base} \
         --noPhoneHome --precise --maxDepth 100 --minMapQ 20 \
         --minQ 20 --maxQ 100
     """
