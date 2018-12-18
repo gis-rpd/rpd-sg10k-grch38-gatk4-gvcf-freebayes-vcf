@@ -265,7 +265,7 @@ process indexcov {
         file("indexcov/all*") into indexcov_ch
     script:
         """
-        goleft indexcov -d indexcov/all ${bams}
+        goleft indexcov --sex chrX,chrY -d indexcov/all ${bams}
         """
 }
 
