@@ -337,12 +337,16 @@ process freebayes {
         awk '/^[^@]/ {printf "%s:%d-%d\\n", \$1, \$2, \$3}' ${calling_interval_list} > calling.regions;
         export TMPDIR=\$PWD;
         freebayes-parallel calling.regions ${task.cpus} -f ${ref} ${sample_key}.bqsr.bam | bgzip > ${sample_key}.fb-raw.vcf.gz;
+
+        # freebayes-parallel can fail silently with a non-truncated file if TMPDIR is full, so check
+	# however don't report if this is due to low coverage
+	tabix ${sample_key}.fb-raw.vcf.gz
+        nchrom=\$(tabix -l ${sample_key}.fb-raw.vcf.gz | wc -l);
+        nreads=\$(samtools idxstats ${sample_key}.bqsr.bam | awk '{s+=\$3} END {print s}');
+        if [ \$nchrom -lt 22 ] && [ \$nreads -gt 10000000 ]; then echo "ERROR: fewer than expected chroms" 1>&2; exit 1; fi
+
         bcftools view -e 'Q<20' -O z -o ${sample_key}.fb.vcf.gz ${sample_key}.fb-raw.vcf.gz;
         bcftools index --threads ${task.cpus} -t ${sample_key}.fb.vcf.gz
-
-        tabix ${sample_key}.fb-raw.vcf.gz
-        nchrom=\$(tabix -l ${sample_key}.fb-raw.vcf.gz | wc -l);
-        if [ \$nchrom -lt 22 ]; then echo "ERROR: fewer than expected chroms" 1>&2; exit 1; fi
         """
 }
 
