@@ -3,6 +3,13 @@
 vim: syntax=groovy
 -*- mode: groovy;-*-
  *
+ * Developed by the Genome Institute of Singapore for
+ * SG10K / the National Precision Medicine Program Singapore
+ *
+ * Copyright: 2018 Genome Institute of Singapore
+ * License: The MIT License (MIT)
+ *
+ * See LICENSE for more copyright information
  */
 
 /* Generate a MD5 hash (mariogarcia's solution from

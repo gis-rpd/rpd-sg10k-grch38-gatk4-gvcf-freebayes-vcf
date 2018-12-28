@@ -3,7 +3,15 @@
  * vim: syntax=groovy
  * -*- mode: groovy;-*-
  *
+ * Developed by the Genome Institute of Singapore for
+ * SG10K / the National Precision Medicine Program Singapore
+ *
+ * Copyright: 2018 Genome Institute of Singapore
+ * License: The MIT License (MIT)
+ *
+ * See LICENSE for more copyright information
  */
+
 
 /* How to generate a MD5 hash in Groovy: mariogarcia's solution from
  * https://gist.github.com/ikarius/299062/85b6540c99878f50f082aaee236ef15fc78e527c
@@ -12,6 +20,7 @@ import java.security.MessageDigest
 def generateMD5_A(String s){
     MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
 }
+
 
 workflow_name = "SG10K: GRCh38 GATK4-gVCF Freebayes-VCF"
 log.info "======================================"
