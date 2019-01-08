@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Creating QC CSV for GATK$ analysed SG10K batch
+"""Creating QC CSV for GATK4 analysed SG10K health batch
 
 Scanned directory is expected to contain one folder per sample and one indexcov folder
 """

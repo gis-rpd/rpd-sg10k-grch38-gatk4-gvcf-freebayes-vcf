@@ -4,7 +4,7 @@
  * -*- mode: groovy;-*-
  *
  * Developed by the Genome Institute of Singapore for
- * SG10K / the National Precision Medicine Program Singapore
+ * SG10K health / the National Precision Medicine Program Singapore
  *
  * Copyright: 2018 Genome Institute of Singapore
  * License: The MIT License (MIT)
@@ -22,7 +22,7 @@ def generateMD5_A(String s){
 }
 
 
-workflow_name = "SG10K: GRCh38 GATK4-gVCF Freebayes-VCF"
+workflow_name = "SG10K Health: GRCh38 GATK4-gVCF Freebayes-VCF"
 log.info "======================================"
 log.info " ${workflow_name}"
 log.info "======================================"
