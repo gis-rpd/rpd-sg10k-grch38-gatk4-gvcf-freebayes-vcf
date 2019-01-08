@@ -7,10 +7,12 @@ ls ../main.nf ../tests  >& /dev/null || exit 1
 
 PARAMS=params.yaml
 
-if [ -z "$WORKDIR" ]; then
-    echo "ERROR: export WORKDIR firsti (e.g /seq/astar/gis/rpd/testing/output/rpd-sg10k-grch38-gatk4-gvcf-freebayes)" 1>&2
+basedir="$1"
+if [ -z "$basedir" ]; then
+    echo "ERROR: Missing basedir argument. This is where results and workdir will be created." 1>&2
+    echo "You can for example use: basedir=\$(mktemp -d /data/users/astar/gis/rpd/testing/output/rpd-sg10k-grch38-gatk4-gvcf-freebayes/\$(date -I)-XXXXXX)" 1>&2
     exit 1
-fi 
+fi
 
 suffix=run-$(date +%Y%m%d-%H%M)
 tmpdir=$(mktemp --tmpdir -d ${suffix}-XXXXXX) || exit  1
@@ -20,8 +22,8 @@ cp $PARAMS $tmpdir
 echo "INFO: This copy makes messing around easier; just don't forget to incorporate changes meant to become permanent"
 cd $tmpdir
 
-workdir=$WORKDIR/$suffix/work
-publishdir=$WORKDIR/$suffix/results
+workdir=$basedir/$suffix/work
+publishdir=$basedir/$suffix/results
 echo "INFO: Running in newly created $tmpdir. workdir is $workdir. publishdir is $publishdir"
 nohup nextflow main.nf -c nextflow.config -params-file $(basename $PARAMS) -w $workdir -profile nscc --publishdir $publishdir --keep_workdir -resume &
 
