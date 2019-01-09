@@ -1,8 +1,5 @@
 #!/usr/bin/env nextflow
 /*
- * vim: syntax=groovy
- * -*- mode: groovy;-*-
- *
  * Developed by the Genome Institute of Singapore for
  * SG10K health / the National Precision Medicine Program Singapore
  *
