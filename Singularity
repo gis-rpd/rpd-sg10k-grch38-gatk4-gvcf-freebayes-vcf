@@ -24,7 +24,7 @@ Bootstrap:docker
     /opt/conda/bin/conda update -n base conda
 
     # nscc
-    mkdir /data /seq
+    mkdir /data /seq /secure /scratch
 
     # sg10k-cov
     apt-get install -y build-essential zlib1g-dev libbz2-dev && \
