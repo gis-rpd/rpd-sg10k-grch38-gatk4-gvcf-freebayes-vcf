@@ -13,15 +13,6 @@
  */
 
 
-/* How to generate a MD5 hash in Groovy: mariogarcia's solution from
- * https://gist.github.com/ikarius/299062/85b6540c99878f50f082aaee236ef15fc78e527c
- */
-import java.security.MessageDigest
-def generateMD5_A(String s){
-    MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
-}
-
-
 workflow_name = "SG10K Health: GRCh38 GATK4-gVCF Freebayes-VCF"
 log.info "======================================"
 log.info " ${workflow_name}"

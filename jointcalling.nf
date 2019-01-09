@@ -12,13 +12,6 @@ vim: syntax=groovy
  * See LICENSE for more copyright information
  */
 
-/* Generate a MD5 hash (mariogarcia's solution from
- * https://gist.github.com/ikarius/299062/85b6540c99878f50f082aaee236ef15fc78e527c)
- */
-import java.security.MessageDigest
-def generateMD5_A(String s){
-    MessageDigest.getInstance("MD5").digest(s.bytes).encodeHex().toString()
-}
 
 workflow_name = "SG10K health: GRCh38 joint-discovery-gatk4"
 log.info "======================================"
@@ -143,7 +136,6 @@ process GenomicsDB {
    script:
    //sample_name_map_str = gen_sample_map_str()
    bed_str = region_list.join("\t").replace(",", "\t").replace("-", "\t")
-   //region_no = generateMD5_A(region_list.toString())[0..8]
    """
    echo "${bed_str}" > reg-${region_no}.bed;
    # printf to avoid newline at end, which GenomicsDBImport is allergic to
