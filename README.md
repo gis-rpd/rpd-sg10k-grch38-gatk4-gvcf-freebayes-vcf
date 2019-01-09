@@ -1,7 +1,7 @@
 # SG10K Health: GRCh38 GATK4-gVCF Freebayes-VCF
 
 This is the main genome analytics workflow powering the production analysis of whole genome samples
-for the Singapore National Precision Medicine (NPM) Program Phase 1A, sometimes also referred to SG10K
+for the Singapore National Precision Medicine (NPM) Program Phase 1A, sometimes also referred to as SG10K
 Health. It processes samples from FastQ to lossless CRAM, computes multiple QC metrics as well as Freebayes
 variant calls and GATK4 gvcfs.
 
