@@ -10,9 +10,6 @@ To ensure reproducibility, scalability and mobility the workflow is implemented 
 [AWS Batch](https://aws.amazon.com/batch/)). Container building is simplified by the use of
 [Bioconda](https://bioconda.github.io/).
 
-
-
-
 ## Output
 
 All results can be found in the `results` folder of a pipeline
@@ -32,13 +29,12 @@ Goleft indexcov, which summarises over the sample set.
 - [Verifybamid](https://genome.sph.umich.edu/wiki/VerifyBamID) for the three ethnicities: `{sample}/verifybamid/` (main files: `{sample}/verifybamid/{sample}.SGVP_MAF0.01.{ethnicity}.selfSM`)
 - Coverage as per SOP: `{sample}/{sample}.cov-062017.txt`
 
-
 ## Notes
 
-- GATK commandline parameters are based on [the official WDL implementation](https://github.com/broadinstitute/wdl/tree/develop/scripts/broad_pipelines/germline-short-variant-discovery/gvcf-generation-per-sample/1.0.0)
-- This repo was migrated from Bitbucket, from where some issues/requests are not yet moved over
 - We share this code for transparency. This is not meant to a generic whole genome workflow for wider use, but rather specific to the program's needs.
  For the same reason this documentation is rudimentary.
+- See [this file](./dag.svg) for the execution DAG
+- GATK commandline parameters are based on [the official WDL implementation](https://github.com/broadinstitute/wdl/tree/develop/scripts/broad_pipelines/germline-short-variant-discovery/gvcf-generation-per-sample/1.0.0)
 
 ## Authors
 
