@@ -9,3 +9,4 @@ work/
 nohup.out
 dag.dot*
 tests/run-*
+*.swp
