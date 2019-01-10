@@ -404,6 +404,11 @@ process gvcf_merge {
        """
 }
 
+
+// to enable poor man's syntax checking
+def testSyntaxOnly(){}
+
+
 /* Introspection
  *
  * https://www.nextflow.io/docs/latest/metadata.html
@@ -423,7 +428,7 @@ workflow.onComplete {
     Project Dir  : ${workflow.projectDir}
     """.stripIndent()
 
-    if (! workflow.success) {    
+    if (! workflow.success) { 
        def errmsg = """\
 
        Report for task that caused the workflow execution to fail:
@@ -434,9 +439,9 @@ workflow.onComplete {
 
        msg = msg + errmsg
     }
-    
+
     status = workflow.success ? 'completed' : 'failed'
-    sendMail(from: 'rpd@gis.a-star.edu.sg', to: "${params.mail_to}", 
+    sendMail(from: 'rpd@gis.a-star.edu.sg', to: "${params.mail_to}",
              subject: "Nextflow execution ${status}: ${workflow_name}", body: msg)
 }
 
