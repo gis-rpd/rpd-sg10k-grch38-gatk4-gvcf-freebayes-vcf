@@ -1,5 +1,9 @@
 # SG10K Health: GRCh38 GATK4-gVCF Freebayes-VCF
 
+[![Build Status](https://dev.azure.com/wilma0161/wilma/_apis/build/status/gis-rpd.rpd-sg10k-grch38-gatk4-gvcf-freebayes-vcf?branchName=master)](https://dev.azure.com/wilma0161/wilma/_build/latest?definitionId=1?branchName=master)
+
+## Introduction
+
 This is the main genome analytics workflow powering the production analysis of whole genome samples
 for the Singapore National Precision Medicine (NPM) Program Phase 1A, sometimes also referred to as SG10K
 Health. It processes samples from FastQ to lossless CRAM, computes multiple QC metrics as well as Freebayes
