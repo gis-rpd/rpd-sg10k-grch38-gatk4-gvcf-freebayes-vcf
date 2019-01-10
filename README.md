@@ -31,10 +31,11 @@ Goleft indexcov, which summarises over the sample set.
 
 ## Notes
 
-- We share this code for transparency. This is not meant to a generic whole genome workflow for wider use, but rather specific to the program's needs.
+- We share this code for transparency. This is not meant to be a generic whole genome workflow for wider use, but rather specific to the program's needs.
  For the same reason this documentation is rudimentary.
 - See [this file](./dag.svg) for the execution DAG
 - GATK commandline parameters are based on [the official WDL implementation](https://github.com/broadinstitute/wdl/tree/develop/scripts/broad_pipelines/germline-short-variant-discovery/gvcf-generation-per-sample/1.0.0)
+- Developers: work on devel or feature branches. Only merge to master if `tests/run.sh` completes successfully
 
 ## Authors
 
