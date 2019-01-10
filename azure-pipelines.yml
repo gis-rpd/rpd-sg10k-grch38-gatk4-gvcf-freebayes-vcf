@@ -16,7 +16,10 @@ variables:
 steps:
 - script: docker build -f Dockerfile -t $(imageName) .
   displayName: 'docker build'
-- script: mkdir /tmp/nextflow && cd /tmp/nextflow && wget -qO- get.nextflow.io | bash && ln -s /tmp/nextflow/nextflow /usr/local/bin/nextflow
+- script: mkdir /tmp/nextflow && cd /tmp/nextflow && wget -qO- get.nextflow.io | bash && sudo ln -s /tmp/nextflow/nextflow /usr/local/bin/nextflow
   displayName: 'nextflow install'
 - script: nextflow -v
   displayName: 'nextflow version'
+- script: nextflow main.nf -test
+  displayName 'nextflow syntax check on main.nf'
+
