@@ -29,7 +29,7 @@ LOGGER.addHandler(HANDLER)
 
 
 # indexcov gender mapping
-PED_SEX_MAP = {'0': 'male', '1': 'female', '2': 'unknown', '-9': 'undetected'}
+PED_SEX_MAP = {'0': 'unknown', '1': 'male', '2': 'female', '-9': 'undetected'}
 # samtools stats fields to report
 SAMTOOLS_STATS_KEYS = ["raw total sequences:",
     #"reads properly paired:",
@@ -214,7 +214,7 @@ def main():
             filesize = os.path.getsize(cram_matches[0]) >> 20
         else:
             LOGGER.warning("Expected one cram file in %s but got %d",
-                    sample_dir, len(vcf_matches))
+                    sample_dir, len(cram_matches))
             filesize = -1
         out[sample_id]['cram filesize [MB]'] = filesize
 
@@ -224,10 +224,10 @@ def main():
             filesize = os.path.getsize(gvcf_matches[0]) >> 20
         else:
             LOGGER.warning("Expected one gvcf file in %s but got %d",
-                    sample_dir, len(vcf_matches))
+                    sample_dir, len(gvcf_matches))
             filesize = -1
         out[sample_id]['gvcf filesize [MB]'] = filesize
-        
+ 
 
 
     fieldnames = set([f for d in out.values() for f in d.keys()])
