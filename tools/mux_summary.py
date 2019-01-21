@@ -29,7 +29,7 @@ LOGGER.addHandler(HANDLER)
 
 
 # indexcov gender mapping
-PED_SEX_MAP = {'0': 'male', '1': 'female', '2': 'unknown', '-9': 'undetected'}
+PED_SEX_MAP = {'0': 'unknown', '1': 'male', '2': 'female', '-9': 'undetected'}
 # samtools stats fields to report
 SAMTOOLS_STATS_KEYS = ["raw total sequences:",
     #"reads properly paired:",
@@ -60,7 +60,7 @@ def parse_summary_from_stats(statsfile):
                 v = float(v)
             else:
                 v = int(float(v))# int(float(x)) helps with scientific notation
-            sn[k] = v 
+            sn[k] = v
     sn['bases mapped [%]'] = 100 * sn["bases mapped (cigar):"]/float(sn["raw total sequences:"] * sn["average length:"])
     sn['reads properly paired [%]'] = 100 * sn["reads properly paired:"]/float(sn["raw total sequences:"])
     sn['reads duplicated [%]'] = 100 * sn["reads duplicated:"]/float(sn["raw total sequences:"])
@@ -183,10 +183,14 @@ def main():
             covsop = -1
         out[sample_id]['coverage (SOP 06-2017)'] = covsop
 
-        # number of vcf records
+        # number of vcf records and vcf file size
         vcf_matches = glob.glob(os.path.join(sample_dir, "*fb.vcf.gz"))
+        filesize = -1
         if len(vcf_matches) == 1:
-            cmd = ['bcftools', 'index', '--nrecords', vcf_matches[0]]
+            fbvcf = vcf_matches[0]
+            filesize = os.path.getsize(fbvcf) >> 20
+
+            cmd = ['bcftools', 'index', '--nrecords', fbvcf]
             try:
                 #env = {"PATH": "/data/users/astar/gis/rpd/apps/bcftools-1.3/bin/bcftools"}
                 res = subprocess.run(cmd, check=True, capture_output=True)
@@ -194,13 +198,37 @@ def main():
                 num_vars = int(res.stdout.decode())
             except subprocess.CalledProcessError:
                 LOGGER.warning("bcftools failed on %s (error was '%s')",
-                        vcf_matches[0], res.stderr.decode())
+                        fbvcf, res.stderr.decode())
                 num_vars = -1
+
         else:
             LOGGER.warning("Expected one vcf file in %s but got %d",
                     sample_dir, len(vcf_matches))
             num_vars = -1
         out[sample_id]['FB variants'] = num_vars
+        out[sample_id]['fb-vcf filesize [MB]'] = filesize
+
+        # cram size
+        cram_matches = glob.glob(os.path.join(sample_dir, "*cram"))
+        if len(cram_matches) == 1:
+            filesize = os.path.getsize(cram_matches[0]) >> 20
+        else:
+            LOGGER.warning("Expected one cram file in %s but got %d",
+                    sample_dir, len(cram_matches))
+            filesize = -1
+        out[sample_id]['cram filesize [MB]'] = filesize
+
+        # gvcf size
+        gvcf_matches = glob.glob(os.path.join(sample_dir, "*g.vcf.gz"))
+        if len(gvcf_matches) == 1:
+            filesize = os.path.getsize(gvcf_matches[0]) >> 20
+        else:
+            LOGGER.warning("Expected one gvcf file in %s but got %d",
+                    sample_dir, len(gvcf_matches))
+            filesize = -1
+        out[sample_id]['gvcf filesize [MB]'] = filesize
+ 
+
 
     fieldnames = set([f for d in out.values() for f in d.keys()])
     #yaml.safe_dump_all(out, sys.stdout, canonical=True)#, default_flow_style=False)
